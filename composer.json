@@ -1,0 +1,22 @@
+{
+    "name": "sky06170/facebook-pages-api",
+    "description": "this is a facebook-pages-api repo for composer",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=5.5",
+    	"guzzlehttp/guzzle": "^6.3",
+    	"nesbot/carbon": "^1.24"
+    },
+    "autoload": {
+        "psr-4": { 
+        	"Facebook\\Pages\\": "src/" 
+        }
+    },
+    "autoload-dev": {},
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
