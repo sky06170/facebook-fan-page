@@ -31,9 +31,9 @@ return [
 
 		'version' => 'v2.12', //your facebook graph api version
 
-		'pagesID' => '', //your facebook fan page ID
+		'pageID' => '', //your facebook fan page ID
 
-		'pagesToken' => '' //your facebook fan page Token
+		'pageToken' => '' //your facebook fan page Token
 
 	];
 ```
