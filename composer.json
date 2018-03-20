@@ -1,6 +1,6 @@
 {
-    "name": "sky06170/facebook-pages-api",
-    "description": "this is a facebook-pages-api repo for composer",
+    "name": "sky06170/facebook-fan-page",
+    "description": "this is a facebook-fan-page-api repo for composer",
     "license": "MIT",
     "type": "library",
     "require": {
@@ -9,8 +9,9 @@
     	"nesbot/carbon": "^1.24"
     },
     "autoload": {
+        "files": ["src/Config/config.php"],
         "psr-4": { 
-        	"Facebook\\Pages\\": "src/" 
+        	"Facebook\\FanPage\\": "src/" 
         }
     },
     "autoload-dev": {},

@@ -1,33 +1,31 @@
 <?php
 
-namespace Facebook\Pages;
+namespace Facebook\FanPage;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
-class FacebookPages
+class FacebookFanPage
 {
 
     public $version;
 
-    public $pagesID;
+    public $pageID;
 
-    public $pagesToken;
+    public $pageToken;
 
     /**
      * __construct
      * 
-     * @param string $vision facebook Graph Api version.
-     * @param int $pagesID facebook fans page ID.
-     * @param string $pagesToken facebook fans page Token.
+     * @param [type] $options [description]
      */
-    public function __construct($vision,$pagesID,$pagesToken)
+    public function __construct($options)
     {
-        $this->version = $vision;
+        $this->version = $options['version'];
 
-        $this->pagesID = $pagesID;
+        $this->pageID = $options['pageID'];
 
-        $this->pagesToken = $pagesToken;
+        $this->pageToken = $options['pageToken'];
     }
 
     /**
@@ -124,10 +122,10 @@ class FacebookPages
      */
     public function publish($message)
     {
-        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pagesID.'/feed';
+        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pageID.'/feed';
 
         $formParams = [
-            'access_token' => $this->pagesToken,
+            'access_token' => $this->pageToken,
             'message' => $message
         ];
 
@@ -151,10 +149,10 @@ class FacebookPages
             return response()->json(['error' => 'publish time invalid']);
         }
 
-        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pagesID.'/feed';
+        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pageID.'/feed';
 
         $formParams = [
-            'access_token' => $this->pagesToken,
+            'access_token' => $this->pageToken,
             'message' => $message,
             'published' => false,
             'scheduled_publish_time' => $this->timeStamp($publish_datetime)
@@ -176,7 +174,7 @@ class FacebookPages
         $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$postID;
 
         $formParams = [
-            'access_token' => $this->pagesToken
+            'access_token' => $this->pageToken
         ];
 
         $response = $this->sendRequest('DELETE',$targetUrl,$formParams);
