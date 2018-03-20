@@ -2,7 +2,7 @@
 
 require_once __DIR__."/../vendor/autoload.php";
 
-use Facebook\FanPage\FacebookFanPage;
+use FacebookFanPage\FacebookFanPage;
 
 $options = facebookFanPageOptions();
 
