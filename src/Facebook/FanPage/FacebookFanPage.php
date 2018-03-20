@@ -1,6 +1,6 @@
 <?php
 
-namespace FacebookFanPage;
+namespace Facebook\FanPage;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;

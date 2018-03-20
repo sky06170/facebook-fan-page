@@ -11,7 +11,7 @@
     "autoload": {
         "files": ["src/Config/config.php"],
         "psr-4": { 
-        	"FacebookFanPage\\": "src/FacebookFanPage/"
+        	"Facebook\\FanPage\\": "src/Facebook/FanPage/"
         }
     },
     "autoload-dev": {},
