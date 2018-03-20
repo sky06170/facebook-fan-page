@@ -14,6 +14,8 @@ class FacebookFanPage
 
     public $pageToken;
 
+    public $utc;
+
     /**
      * __construct
      * 
@@ -26,6 +28,8 @@ class FacebookFanPage
         $this->pageID = $options['pageID'];
 
         $this->pageToken = $options['pageToken'];
+
+        $this->utc = $options['utc'];
     }
 
     /**
@@ -69,7 +73,7 @@ class FacebookFanPage
      */
     private function startScheduledPublishTime()
     {
-        return $this->nowDatetime()->subHour(8)->addMinute(10)->addSecond(30)->toDateTimeString();
+        return $this->nowDatetime()->subHour($this->utc)->addMinute(10)->addSecond(30)->toDateTimeString();
     }
 
     /**
@@ -79,7 +83,7 @@ class FacebookFanPage
      */
     private function endScheduledPublishTime()
     {
-        return $this->nowDatetime()->subHour(8)->addMonth(6)->addSecond(30)->toDateTimeString();
+        return $this->nowDatetime()->subHour($this->utc)->addMonth(6)->addSecond(30)->toDateTimeString();
     }
 
     /**
@@ -95,6 +99,7 @@ class FacebookFanPage
 
     /**
      * 是否在排程發佈時間範圍內
+     * 介於發佈後 10 分鐘至 6 個月之間的 UNIX 時間戳記
      *
      * @param $publish_datetime
      * @return bool

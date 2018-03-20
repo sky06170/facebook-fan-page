@@ -8,7 +8,9 @@ function facebookFanPageOptions()
 
 		'pageID' => '', //your facebook fan page ID
 
-		'pageToken' => '' //your facebook fan page Token
+		'pageToken' => '', //your facebook fan page Token
+
+		'utc' => 8 //Universal Time Coordinated
 
 	];
 }
