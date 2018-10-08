@@ -7,14 +7,7 @@ use GuzzleHttp\Client;
 
 class FacebookFanPage
 {
-
-    public $version;
-
-    public $pageID;
-
-    public $pageToken;
-
-    public $utc;
+    protected $config;
 
     /**
      * __construct
@@ -23,13 +16,7 @@ class FacebookFanPage
      */
     public function __construct($options)
     {
-        $this->version = $options['version'];
-
-        $this->pageID = $options['pageID'];
-
-        $this->pageToken = $options['pageToken'];
-
-        $this->utc = $options['utc'];
+        $this->config = $options;
     }
 
     /**
@@ -73,7 +60,7 @@ class FacebookFanPage
      */
     private function startScheduledPublishTime()
     {
-        return $this->nowDatetime()->subHour($this->utc)->addMinute(10)->addSecond(30)->toDateTimeString();
+        return $this->nowDatetime()->subHour($this->config['utc'])->addMinute(10)->addSecond(30)->toDateTimeString();
     }
 
     /**
@@ -83,7 +70,7 @@ class FacebookFanPage
      */
     private function endScheduledPublishTime()
     {
-        return $this->nowDatetime()->subHour($this->utc)->addMonth(6)->addSecond(30)->toDateTimeString();
+        return $this->nowDatetime()->subHour($this->config['utc'])->addMonth(6)->addSecond(30)->toDateTimeString();
     }
 
     /**
@@ -125,18 +112,26 @@ class FacebookFanPage
      * @param $message
      * @return String
      */
-    public function publish($message)
+    public function publishArticle($message)
     {
-        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pageID.'/feed';
+        try {
 
-        $formParams = [
-            'access_token' => $this->pageToken,
-            'message' => $message
-        ];
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/'.$this->config['pageID'].'/feed';
 
-        $response = $this->sendRequest('POST',$targetUrl,$formParams);
+            $formParams = [
+                'access_token' => $this->config['pageToken'],
+                'message' => $message
+            ];
 
-        return $response->getBody();
+            $response = $this->sendRequest('POST',$targetUrl,$formParams);
+
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
     }
 
     /**
@@ -146,26 +141,147 @@ class FacebookFanPage
      * @param null $scheduled_publish_datetime
      * @return bool|String
      */
-    public function publishScheduled($message,$scheduled_publish_datetime = null)
+    public function publishScheduledArticle($message,$scheduled_publish_datetime = null)
     {
-        $publish_datetime = $this->scheduledPublishTime($scheduled_publish_datetime);
+        try {
 
-        if(!$this->inScheduledPublishTimeRange($publish_datetime)){
-            return response()->json(['error' => 'publish time invalid']);
+            $publish_datetime = $this->scheduledPublishTime($scheduled_publish_datetime);
+
+            if(!$this->inScheduledPublishTimeRange($publish_datetime)){
+                return response()->json(['error' => 'publish time invalid']);
+            }
+
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/'.$this->config['pageID'].'/feed';
+
+            $formParams = [
+                'access_token' => $this->config['pageToken'],
+                'message' => $message,
+                'published' => false,
+                'scheduled_publish_time' => $this->timeStamp($publish_datetime)
+            ];
+
+            $response = $this->sendRequest('POST',$targetUrl,$formParams);
+
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
         }
+    }
 
-        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$this->pageID.'/feed';
+    /**
+     * 列出所有即時文章
+     *
+     * @return void
+     */
+    public function getInstantArticles()
+    {
+        try {
 
-        $formParams = [
-            'access_token' => $this->pageToken,
-            'message' => $message,
-            'published' => false,
-            'scheduled_publish_time' => $this->timeStamp($publish_datetime)
-        ];
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/'.$this->config['pageID'].'/instant_articles';
+            $targetUrl .= '?access_token='.$this->config['pageToken'];
 
-        $response = $this->sendRequest('POST',$targetUrl,$formParams);
+            $response = $this->sendRequest('GET', $targetUrl, []);
 
-        return $response->getBody();
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
+    }
+
+    /**
+     * 查詢即時文章編號
+     *
+     * @param string $id
+     * @param string $mode
+     * @return void
+     */
+    public function getInstantArticleIdById($id = '', $mode = 'development')
+    {
+        try {
+
+            if ($mode == 'production') {
+                $fields = 'instant_article';
+            } else {
+                $fields = 'development_instant_article';
+            }
+
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/';
+            $targetUrl .= '?id='.$id;
+            $targetUrl .= '&fields='.$fields;
+            $targetUrl .= '&access_token='.$this->config['pageToken'];
+    
+            $response = $this->sendRequest('GET', $targetUrl, []);
+            
+            return $response;
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
+    }
+
+    /**
+     * 取得即時文章詳細資訊
+     *
+     * @param string $articleId
+     * @return void
+     */
+    public function getDetailInstantArticle($articleId = '')
+    {
+        try {
+
+            $tatgetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/';
+            $tatgetUrl .= $articleId;
+            $targetUrl .= '?access_token='.$this->config['pageToken'];
+
+            $response = $this->sendRequest('GET', $targetUrl, []);
+
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
+    }
+    
+    /**
+     * 建立即時文章
+     *
+     * @param string $html_source
+     * @param boolean $published
+     * @param boolean $development_mode
+     * @return void
+     */
+    public function createInstantArticle($html_source = '', $published = false, $development_mode = true)
+    {
+        try {
+
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/'.$this->config['pageID'].'/instant_articles';
+
+            $formParams = [
+                'access_token' => $this->config['pageToken'],
+                'html_source' => $html_source,
+                'published' => $published,
+                'development_mode' => $development_mode,
+            ];
+
+            $response = $this->sendRequest('POST', $targetUrl, $formParams);
+
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
     }
 
     /**
@@ -174,17 +290,25 @@ class FacebookFanPage
      * @param string $postID
      * @return String
      */
-    public function delete($postID = '')
+    public function deleteArticle($postID = '')
     {
-        $targetUrl = 'https://graph.facebook.com/'.$this->version.'/'.$postID;
+        try {
 
-        $formParams = [
-            'access_token' => $this->pageToken
-        ];
+            $targetUrl = 'https://graph.facebook.com/'.$this->config['version'].'/'.$postID;
 
-        $response = $this->sendRequest('DELETE',$targetUrl,$formParams);
+            $formParams = [
+                'access_token' => $this->config['pageToken']
+            ];
 
-        return $response->getBody();
+            $response = $this->sendRequest('DELETE',$targetUrl,$formParams);
+
+            return $response->getBody();
+
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+
+        }
     }
 
     /**

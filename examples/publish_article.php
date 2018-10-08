@@ -4,13 +4,13 @@ require_once __DIR__."/../vendor/autoload.php";
 
 use Facebook\FanPage\FacebookFanPage;
 
-$options = facebookFanPageOptions();
+$options = facebookFanPageOptions()['article'];
 
 $pages = new FacebookFanPage($options);
 
 $message = 'test publish!'.'('.uniqid().')';
 
-$response = $pages->publish($message);
+$response = $pages->publishArticle($message);
 
 echo $response;
 
